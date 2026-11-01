@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getHistory, addHistory, clearHistory } from '@/lib/store';
 import { getAdminSession } from '@/lib/auth';
 
-export async function GET() {
-  const history = getHistory(20);
+export async function GET(request: NextRequest) {
+  const type = request.nextUrl.searchParams.get('type') as 'youtube' | 'website' | null;
+  const history = getHistory(50, type || undefined);
   return NextResponse.json({ success: true, history });
 }
 
@@ -23,13 +24,13 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 
-  clearHistory();
+  const type = request.nextUrl.searchParams.get('type') as 'youtube' | 'website' | null;
+  clearHistory(type || undefined);
   return NextResponse.json({ success: true, message: 'History cleared' });
 }
-

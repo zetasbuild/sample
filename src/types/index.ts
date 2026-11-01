@@ -24,3 +24,9 @@ export interface ProxySettings {
   userAgent: string;
 }
 
+export interface AdminCredentials {
+  username: string;
+  passwordHash?: string; // or plain for simple local setup
+  passwordPlain: string;
+  updatedAt?: number;
+}

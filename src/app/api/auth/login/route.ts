@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ADMIN_USERNAME, ADMIN_PASSWORD, AUTH_COOKIE_NAME, createSessionToken } from '@/lib/auth';
+import { AUTH_COOKIE_NAME, createSessionToken } from '@/lib/auth';
+import { getAdminCredentials } from '@/lib/store';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { username, password } = body;
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    const creds = getAdminCredentials();
+
+    if (username === creds.username && password === creds.passwordPlain) {
       const token = createSessionToken(username);
       const response = NextResponse.json({
         success: true,
@@ -37,4 +40,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

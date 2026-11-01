@@ -38,9 +38,10 @@ npm start
 *(A **"Fill Demo Credentials"** button is also available on the login page for 1-click test access).*
 
 ### Admin Features
-- 📑 **Preset Manager**: Add, edit, or delete the YouTube videos and Website bookmarks shown on the main user panel.
-- 📊 **Activity Logs**: View links recently opened in the dual panel along with exact timestamps.
-- ⚙️ **Proxy Configuration**: Toggle the Smart Bypass proxy and configure custom User-Agent headers.
+- 📺 **YouTube Admin View**: Dedicated manager for YouTube presets, playback test player, and YouTube watch history.
+- 🌐 **Website Admin View**: Dedicated manager for Website bookmarks, live preview test, Smart Bypass proxy settings, and browsing history.
+- 🔀 **Split Dual Admin View**: Edit and preview both YouTube and Website management simultaneously.
+- 🔑 **Set Login Username & Password**: Full controls inside the Admin Panel to update the admin username and password with instant saving and verification.
 
 ---
 

@@ -1,10 +1,7 @@
 import { cookies } from 'next/headers';
+import { getAdminCredentials } from './store';
 
-export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 export const AUTH_COOKIE_NAME = 'dualview_admin_session';
-
-// A simple HMAC-like or signature string for local session
 const SECRET_SALT = 'dualview_secure_token_secret_2026';
 
 export function createSessionToken(username: string): string {
@@ -12,23 +9,27 @@ export function createSessionToken(username: string): string {
   return payload;
 }
 
-export function verifySessionToken(token: string | undefined): boolean {
-  if (!token) return false;
+export function verifySessionToken(token: string | undefined): { valid: boolean; username?: string } {
+  if (!token) return { valid: false };
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
     const [user, , salt] = decoded.split(':');
-    return user === ADMIN_USERNAME && salt === SECRET_SALT;
+    const creds = getAdminCredentials();
+    if (user === creds.username && salt === SECRET_SALT) {
+      return { valid: true, username: user };
+    }
+    return { valid: false };
   } catch {
-    return false;
+    return { valid: false };
   }
 }
 
 export async function getAdminSession() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-  if (verifySessionToken(sessionToken)) {
-    return { username: ADMIN_USERNAME, role: 'admin' as const };
+  const result = verifySessionToken(sessionToken);
+  if (result.valid && result.username) {
+    return { username: result.username, role: 'admin' as const };
   }
   return null;
 }
-

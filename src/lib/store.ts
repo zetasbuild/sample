@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { PresetItem, HistoryItem, ProxySettings } from '@/types';
+import { PresetItem, HistoryItem, ProxySettings, AdminCredentials } from '@/types';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'store.json');
@@ -9,7 +9,14 @@ interface AppData {
   presets: PresetItem[];
   history: HistoryItem[];
   settings: ProxySettings;
+  adminCredentials?: AdminCredentials;
 }
+
+const DEFAULT_CREDENTIALS: AdminCredentials = {
+  username: process.env.ADMIN_USERNAME || 'admin',
+  passwordPlain: process.env.ADMIN_PASSWORD || 'admin123',
+  updatedAt: Date.now()
+};
 
 const DEFAULT_PRESETS: PresetItem[] = [
   {
@@ -72,7 +79,13 @@ function readData(): AppData {
   try {
     if (fs.existsSync(DATA_FILE)) {
       const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      return {
+        presets: parsed.presets || DEFAULT_PRESETS,
+        history: parsed.history || [],
+        settings: parsed.settings || DEFAULT_SETTINGS,
+        adminCredentials: parsed.adminCredentials || DEFAULT_CREDENTIALS
+      };
     }
   } catch (e) {
     console.error('Error reading store.json:', e);
@@ -81,7 +94,8 @@ function readData(): AppData {
   return {
     presets: DEFAULT_PRESETS,
     history: [],
-    settings: DEFAULT_SETTINGS
+    settings: DEFAULT_SETTINGS,
+    adminCredentials: DEFAULT_CREDENTIALS
   };
 }
 
@@ -94,6 +108,24 @@ function writeData(data: AppData) {
   } catch (e) {
     console.error('Error writing store.json:', e);
   }
+}
+
+// Admin Credentials Operations
+export function getAdminCredentials(): AdminCredentials {
+  const data = readData();
+  return data.adminCredentials || DEFAULT_CREDENTIALS;
+}
+
+export function updateAdminCredentials(username: string, passwordPlain: string): AdminCredentials {
+  const data = readData();
+  const updated: AdminCredentials = {
+    username: username.trim(),
+    passwordPlain: passwordPlain.trim(),
+    updatedAt: Date.now()
+  };
+  data.adminCredentials = updated;
+  writeData(data);
+  return updated;
 }
 
 // Preset operations
@@ -128,9 +160,13 @@ export function deletePreset(id: string): boolean {
 }
 
 // History operations
-export function getHistory(limit = 10): HistoryItem[] {
+export function getHistory(limit = 20, type?: 'youtube' | 'website'): HistoryItem[] {
   const data = readData();
-  return data.history.slice(0, limit);
+  let list = data.history;
+  if (type) {
+    list = list.filter(h => h.type === type);
+  }
+  return list.slice(0, limit);
 }
 
 export function addHistory(item: Omit<HistoryItem, 'id' | 'timestamp'>): HistoryItem {
@@ -141,22 +177,24 @@ export function addHistory(item: Omit<HistoryItem, 'id' | 'timestamp'>): History
     timestamp: Date.now()
   };
 
-  // Avoid duplicates at top
   data.history = data.history.filter(h => h.url !== item.url);
   data.history.unshift(newHistory);
 
-  // Keep last 50 items
-  if (data.history.length > 50) {
-    data.history = data.history.slice(0, 50);
+  if (data.history.length > 100) {
+    data.history = data.history.slice(0, 100);
   }
 
   writeData(data);
   return newHistory;
 }
 
-export function clearHistory(): void {
+export function clearHistory(type?: 'youtube' | 'website'): void {
   const data = readData();
-  data.history = [];
+  if (type) {
+    data.history = data.history.filter(h => h.type !== type);
+  } else {
+    data.history = [];
+  }
   writeData(data);
 }
 
@@ -172,4 +210,3 @@ export function updateSettings(settings: Partial<ProxySettings>): ProxySettings 
   writeData(data);
   return data.settings;
 }
-
