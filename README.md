@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📺 DualView Panel (Next.js Edition)
 
-## Getting Started
+A modern full-stack **Next.js** application featuring:
+1. **YouTube Player Panel**: Copy & paste any YouTube URL to watch with clean responsive embedding.
+2. **Website Viewer Panel**: Copy & paste any website link with an integrated **Smart Bypass Proxy** to eliminate iframe restrictions (`X-Frame-Options` & CSP).
+3. **Admin Panel & Authentication**: Secure sign-in to customize presets, monitor user activity history, and control proxy settings.
 
-First, run the development server:
+---
 
+## ⚡ Quick Start
+
+The app is currently running live on:
+👉 **[http://localhost:3000](http://localhost:3000)**
+
+To run or restart manually:
 ```bash
+# Run Development Server (Next.js Turbopack)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Or build & run Production Server
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Admin Panel & Login
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Admin Login Route**: **[/login](http://localhost:3000/login)**
+- **Admin Dashboard**: **[/admin](http://localhost:3000/admin)** (protected route)
 
-## Learn More
+### Default Admin Credentials
+| Field | Value |
+| :--- | :--- |
+| **Username** | `admin` |
+| **Password** | `admin123` |
 
-To learn more about Next.js, take a look at the following resources:
+*(A **"Fill Demo Credentials"** button is also available on the login page for 1-click test access).*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Admin Features
+- 📑 **Preset Manager**: Add, edit, or delete the YouTube videos and Website bookmarks shown on the main user panel.
+- 📊 **Activity Logs**: View links recently opened in the dual panel along with exact timestamps.
+- ⚙️ **Proxy Configuration**: Toggle the Smart Bypass proxy and configure custom User-Agent headers.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🎯 Key Panel Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 1. YouTube Panel
+- Supports **all standard YouTube formats**:
+  - `https://www.youtube.com/watch?v=VIDEO_ID`
+  - `https://youtu.be/VIDEO_ID`
+  - `https://www.youtube.com/shorts/VIDEO_ID`
+  - `https://www.youtube.com/live/VIDEO_ID`
+  - Timestamps (`?t=90` or `?t=1m30s`)
+- **One-click Paste Button** (`navigator.clipboard` integration).
+- Clean 16:9 responsive embed container (`youtube-nocookie.com`).
+- Recent video history chips.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. Website Viewer Panel
+- Automatic URL normalization (prepends `https://` if omitted).
+- **Smart Bypass Proxy** (`/api/proxy?url=...`):
+  - Strips `X-Frame-Options` and `Content-Security-Policy` headers.
+  - Injects `<base href="...">` so relative CSS/images resolve to the original site.
+  - Allows sites like Wikipedia, Hacker News, MDN, OpenStreetMap to render inside the frame.
+- Browser mock header with URL display, reload button, and external tab pop-out.
+- One-click Paste button and recent history chips.
+
+### 3. Layout Modes
+- **🔀 Split View**: Watch YouTube and browse the website simultaneously (columns or rows).
+- **📺 YouTube Only**: Expands YouTube player to full screen width.
+- **🌐 Website Only**: Expands Website viewer to full screen width.
+- **Orientation Toggle**: Switch between Side-by-Side (Columns) and Stacked (Rows).

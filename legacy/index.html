@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dual Media & Web Panel | YouTube & Website Viewer</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+
+  <!-- Top App Navigation / Toolbar -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <span class="icon-yt">▶</span>
+        <span class="icon-divider">/</span>
+        <span class="icon-web">🌐</span>
+      </div>
+      <div>
+        <h1>DualView Panel</h1>
+        <p class="tagline">Paste YouTube link &amp; browse any website simultaneously</p>
+      </div>
+    </div>
+
+    <!-- Layout & View Controls -->
+    <div class="header-controls">
+      <div class="view-switcher" role="tablist" aria-label="Layout Modes">
+        <button id="viewSplitBtn" class="mode-btn active" title="Split Screen (Both panels side-by-side)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+          <span>Split View</span>
+        </button>
+        <button id="viewYoutubeBtn" class="mode-btn" title="YouTube Only">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          <span>YouTube Only</span>
+        </button>
+        <button id="viewWebsiteBtn" class="mode-btn" title="Website Only">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Website Only</span>
+        </button>
+      </div>
+
+      <!-- Split Direction Toggle (Side-by-side vs Stacked) -->
+      <button id="splitOrientationBtn" class="icon-btn" title="Toggle Split Orientation (Columns / Rows)">
+        <svg id="orientationIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="12" y1="3" x2="12" y2="21"/>
+        </svg>
+      </button>
+
+      <!-- Status Indicator Badge -->
+      <div id="proxyBadge" class="status-badge" title="Local bypass server status">
+        <span class="status-dot"></span>
+        <span class="status-text">Detecting Server...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container: Holds Both Panels -->
+  <main id="panelsContainer" class="panels-container split-columns">
+
+    <!-- ==================== PANEL 1: YOUTUBE PLAYER ==================== -->
+    <section id="youtubePanel" class="panel youtube-panel">
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="panel-icon yt-color">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </span>
+          <h2>YouTube Panel</h2>
+        </div>
+        <div class="panel-actions">
+          <span id="ytStatusBadge" class="mini-badge">Ready</span>
+          <button id="ytClearBtn" class="action-btn-ghost" title="Clear current video">Clear</button>
+        </div>
+      </div>
+
+      <!-- YouTube URL Input Bar -->
+      <div class="url-bar-wrapper">
+        <div class="url-input-group">
+          <span class="input-prefix">🔗</span>
+          <input 
+            type="text" 
+            id="youtubeUrlInput" 
+            placeholder="Paste YouTube link (e.g., https://youtu.be/... or watch?v=...)"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button id="ytPasteBtn" class="btn-paste" title="Paste from clipboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            Paste
+          </button>
+          <button id="youtubeLoadBtn" class="btn-primary yt-btn">
+            <span>Play</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick presets / samples -->
+      <div class="preset-chips">
+        <span class="chips-label">Quick Try:</span>
+        <button class="chip yt-chip" data-url="https://www.youtube.com/watch?v=jfKfPfyJRdk">🎧 Lofi Girl</button>
+        <button class="chip yt-chip" data-url="https://www.youtube.com/watch?v=aqz-KE-bpKQ">🌿 Relaxing 4K Nature</button>
+        <button class="chip yt-chip" data-url="https://www.youtube.com/watch?v=4xDzrJKXOOY">⚡ Synthwave Coding</button>
+      </div>
+
+      <!-- YouTube Video Display Area -->
+      <div class="media-viewport youtube-viewport">
+        <!-- Empty State -->
+        <div id="ytEmptyState" class="empty-state">
+          <div class="empty-icon yt-icon-pulse">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </div>
+          <h3>No Video Loaded</h3>
+          <p>Copy any YouTube link (full URL, shortened <code>youtu.be</code>, or shorts) and click <strong>Play</strong></p>
+          <div class="supported-formats">
+            <span>✓ watch?v=...</span>
+            <span>✓ youtu.be/...</span>
+            <span>✓ shorts/...</span>
+            <span>✓ timestamps ?t=...</span>
+          </div>
+        </div>
+
+        <!-- Responsive 16:9 Iframe Wrapper -->
+        <div id="ytPlayerContainer" class="video-container" style="display:none;">
+          <iframe 
+            id="ytIframe" 
+            src="" 
+            title="YouTube Video Player"
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Recent History Chips -->
+      <div id="ytHistorySection" class="history-section" style="display:none;">
+        <span class="history-label">Recent Videos:</span>
+        <div id="ytHistoryChips" class="history-chips"></div>
+      </div>
+    </section>
+
+
+    <!-- ==================== PANEL 2: WEBSITE VIEWER ==================== -->
+    <section id="websitePanel" class="panel website-panel">
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="panel-icon web-color">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <h2>Website Panel</h2>
+        </div>
+        <div class="panel-actions">
+          <button id="webReloadBtn" class="icon-btn-small" title="Reload Website">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
+          <button id="webExternalBtn" class="icon-btn-small" title="Open in New Tab">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </button>
+          <button id="webClearBtn" class="action-btn-ghost" title="Clear website frame">Clear</button>
+        </div>
+      </div>
+
+      <!-- Website URL Input Bar -->
+      <div class="url-bar-wrapper">
+        <div class="url-input-group">
+          <span class="input-prefix">🌐</span>
+          <input 
+            type="text" 
+            id="websiteUrlInput" 
+            placeholder="Paste website URL (e.g., wikipedia.org, github.com, mdn.io)"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button id="webPasteBtn" class="btn-paste" title="Paste from clipboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            Paste
+          </button>
+          <button id="websiteLoadBtn" class="btn-primary web-btn">
+            <span>Open</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode & Options Bar -->
+      <div class="web-options-bar">
+        <!-- Quick presets -->
+        <div class="preset-chips">
+          <span class="chips-label">Quick Try:</span>
+          <button class="chip web-chip" data-url="https://en.wikipedia.org">📖 Wikipedia</button>
+          <button class="chip web-chip" data-url="https://news.ycombinator.com">📰 Hacker News</button>
+          <button class="chip web-chip" data-url="https://www.openstreetmap.org">🗺️ OpenStreetMap</button>
+          <button class="chip web-chip" data-url="https://example.com">📄 Example Site</button>
+        </div>
+
+        <!-- Mode selector: Proxy vs Direct -->
+        <div class="proxy-toggle-wrapper">
+          <label class="toggle-switch" title="Proxy Mode bypasses X-Frame-Options & CSP embedding restrictions so almost any site can be shown properly">
+            <input type="checkbox" id="proxyModeToggle" checked>
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-label" id="proxyModeLabel">Smart Bypass: ON</span>
+        </div>
+      </div>
+
+      <!-- Website Frame Area -->
+      <div class="media-viewport website-viewport">
+        <!-- Browser Simulated Header Bar -->
+        <div class="browser-bar">
+          <div class="browser-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <div class="browser-address" id="browserAddressDisplay">
+            <span class="ssl-icon">🔒</span>
+            <span id="activeUrlText" class="address-text">about:blank</span>
+          </div>
+          <div class="browser-badges">
+            <span id="modeBadge" class="mode-indicator badge-proxy">Bypass Active</span>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="webEmptyState" class="empty-state">
+          <div class="empty-icon web-icon-pulse">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>No Website Loaded</h3>
+          <p>Copy and paste any website link above, then click <strong>Open</strong> to view it live.</p>
+          <div class="supported-formats">
+            <span>⚡ Smart Proxy eliminates iframe blockers</span>
+            <span>✓ Safe Sandbox</span>
+            <span>✓ Auto https://</span>
+          </div>
+        </div>
+
+        <!-- Website Iframe Container -->
+        <div id="webFrameContainer" class="web-frame-container" style="display:none;">
+          <div id="webLoadingBar" class="loading-bar"></div>
+          <iframe 
+            id="webIframe" 
+            src="" 
+            title="Embedded Website Frame"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-modals"
+            allow="fullscreen"
+          ></iframe>
+          
+          <!-- Iframe Blocker Helper Banner (if site fails or blocks direct iframe) -->
+          <div id="iframeBlockedHelper" class="iframe-help-banner" style="display:none;">
+            <div class="help-content">
+              <span class="help-icon">⚠️</span>
+              <div class="help-texts">
+                <strong>Website restricting embeds?</strong>
+                <p>Some sites (like Google, Twitter/X, GitHub) block standard iframe embeds.</p>
+              </div>
+            </div>
+            <div class="help-actions">
+              <button id="enableProxyAndReloadBtn" class="btn-sm-primary">Switch to Smart Bypass</button>
+              <button id="openExternalFallbackBtn" class="btn-sm-secondary">Open in New Tab ↗</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent History Chips -->
+      <div id="webHistorySection" class="history-section" style="display:none;">
+        <span class="history-label">Recent Sites:</span>
+        <div id="webHistoryChips" class="history-chips"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
