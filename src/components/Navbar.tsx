@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Lock, LogOut } from 'lucide-react';
+import { ShieldCheck, Lock, LogOut, User } from 'lucide-react';
 import { YouTubeIcon } from './Icons';
 
 interface NavbarProps {
@@ -34,20 +34,24 @@ export default function Navbar({ adminUser, onLogout }: NavbarProps) {
           </div>
         </Link>
 
-        {/* Right Actions: Admin Login / Admin Controls */}
+        {/* Right Actions: User Status / Admin Controls */}
         <div className="flex items-center gap-2.5">
           {adminUser ? (
             <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1.5 rounded-lg">
+                <User className="w-3.5 h-3.5 text-slate-500" />
+                <span className="font-mono">{adminUser.username}</span>
+              </div>
+
               <Link
                 href="/admin"
                 className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Admin Panel</span>
-                <span className="font-mono text-[10px] bg-white px-1.5 py-0.2 rounded border border-emerald-200">
-                  {adminUser.username}
-                </span>
+                <span className="hidden sm:inline">Admin Panel</span>
+                <span className="sm:hidden">Admin</span>
               </Link>
+
               {onLogout && (
                 <button
                   onClick={onLogout}
@@ -65,7 +69,7 @@ export default function Navbar({ adminUser, onLogout }: NavbarProps) {
               className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
             >
               <Lock className="w-3.5 h-3.5 text-slate-500" />
-              <span>Admin Login</span>
+              <span>Login</span>
             </Link>
           )}
         </div>

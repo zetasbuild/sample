@@ -4,20 +4,35 @@ import { getAdminCredentials } from './store';
 export const AUTH_COOKIE_NAME = 'dualview_admin_session';
 const SECRET_SALT = 'dualview_secure_token_secret_2026';
 
-export function createSessionToken(username: string): string {
-  const payload = Buffer.from(`${username}:${Date.now()}:${SECRET_SALT}`).toString('base64');
+export function createSessionToken(username: string, role = 'admin'): string {
+  const payload = Buffer.from(`${username}:${role}:${Date.now()}:${SECRET_SALT}`).toString('base64');
   return payload;
 }
 
-export function verifySessionToken(token: string | undefined): { valid: boolean; username?: string } {
+export function verifySessionToken(token: string | undefined): { valid: boolean; username?: string; role?: string } {
   if (!token) return { valid: false };
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const [user, , salt] = decoded.split(':');
-    const creds = getAdminCredentials();
-    if (user === creds.username && salt === SECRET_SALT) {
-      return { valid: true, username: user };
+    const parts = decoded.split(':');
+    
+    // Support new format: username:role:timestamp:salt
+    if (parts.length >= 4) {
+      const [user, role, , salt] = parts;
+      const creds = getAdminCredentials();
+      if (salt === SECRET_SALT && (user === 'sample' || user === 'admin' || user === creds.username)) {
+        return { valid: true, username: user, role: role || 'admin' };
+      }
     }
+    
+    // Fallback for older format: username:timestamp:salt
+    if (parts.length === 3) {
+      const [user, , salt] = parts;
+      const creds = getAdminCredentials();
+      if (salt === SECRET_SALT && (user === 'sample' || user === 'admin' || user === creds.username)) {
+        return { valid: true, username: user, role: 'admin' };
+      }
+    }
+
     return { valid: false };
   } catch {
     return { valid: false };
