@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExternalLink, RotateCw, ShieldCheck } from 'lucide-react';
+import { RotateCw, ShieldCheck } from 'lucide-react';
 import { YouTubeIcon } from './Icons';
 import { PresetItem } from '@/types';
 
@@ -78,7 +78,8 @@ export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
   const parsed = parseYouTubeUrl(activeUrl);
   let embedUrl: string | null = null;
   if (parsed) {
-    embedUrl = `https://www.youtube-nocookie.com/embed/${parsed.videoId}?autoplay=1&rel=0`;
+    // Embed with modestbranding, no related videos, and clean player
+    embedUrl = `https://www.youtube-nocookie.com/embed/${parsed.videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
     if (parsed.startTime > 0) {
       embedUrl += `&start=${parsed.startTime}`;
     }
@@ -99,49 +100,38 @@ export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
               <h2 className="text-sm font-semibold text-slate-100">YouTube Player</h2>
               <span className="text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3" />
-                <span>Admin Link Only</span>
+                <span>Admin Stream</span>
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Only displaying the active video link set by Admin
+              Playing active media stream configured by Admin
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5">
           {activeUrl && (
-            <>
-              <button
-                onClick={handleReload}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
-                title="Reload Video"
-              >
-                <RotateCw className="w-3.5 h-3.5" />
-              </button>
-              <a
-                href={activeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
-                title="Open on YouTube"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </>
+            <button
+              onClick={handleReload}
+              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+              title="Reload Video"
+            >
+              <RotateCw className="w-3.5 h-3.5" />
+            </button>
           )}
         </div>
       </div>
 
-      {/* Video Viewport (Direct Embed with zero extra clutter) */}
-      <div className="flex-1 min-h-[420px] bg-black flex flex-col relative">
+      {/* Video Viewport (Direct embed with zero copy link options) */}
+      <div className="flex-1 min-h-[440px] bg-black flex flex-col relative">
         {embedUrl ? (
-          <div className="relative w-full h-full min-h-[420px] flex flex-1">
+          <div className="relative w-full h-full min-h-[440px] flex flex-1">
             <iframe
               key={`${parsed?.videoId}-${refreshKey}`}
               src={embedUrl}
-              title="Admin YouTube Video"
-              className="w-full flex-1 min-h-[420px] border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              title="Admin YouTube Video Player"
+              className="w-full flex-1 min-h-[440px] border-0"
+              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
@@ -150,35 +140,24 @@ export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
             <div className="w-14 h-14 mx-auto rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-red-500">
               <YouTubeIcon className="w-7 h-7" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-200">No Video Link Configured</h3>
+            <h3 className="text-sm font-semibold text-slate-200">No Video Configured</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              The admin has not pasted an active YouTube link yet.
+              No active media stream has been set by the admin yet.
             </p>
-            <div className="pt-2">
-              <a
-                href="/login"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg transition-colors"
-              >
-                <span>Sign in to Admin Panel</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
           </div>
         )}
       </div>
 
-      {/* Footer Info Pill */}
-      {activeUrl && (
-        <div className="bg-slate-950/80 border-t border-slate-800 px-4 py-2 flex items-center justify-between text-[11px] text-slate-400">
-          <div className="flex items-center gap-1.5 truncate">
-            <span className="font-semibold text-slate-300">Active Video:</span>
-            <span className="font-mono text-slate-500 truncate">{activeUrl}</span>
-          </div>
-          <span className="text-[10px] uppercase font-mono text-red-400 bg-red-500/10 px-2 py-0.5 rounded shrink-0">
-            ✓ Admin Set Video
-          </span>
+      {/* Clean Footer - Zero exposed URLs or copy link options */}
+      <div className="bg-slate-950/80 border-t border-slate-800 px-4 py-2 flex items-center justify-between text-[11px] text-slate-400">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="font-medium text-slate-300">Live Video Player</span>
         </div>
-      )}
+        <span className="text-[10px] uppercase font-mono text-red-400 bg-red-500/10 px-2 py-0.5 rounded shrink-0">
+          ✓ Verified Admin Stream
+        </span>
+      </div>
     </section>
   );
 }
