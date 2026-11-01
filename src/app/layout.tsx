@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'DualView | Video & Website Panel',
-  description: 'Clean light-theme dual panel for YouTube videos and Websites',
+  title: 'Video Stream Player',
+  description: 'Clean light-theme video player configured by Admin',
 };
 
 export default function RootLayout({

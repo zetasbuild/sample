@@ -16,7 +16,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
+  
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -53,18 +53,18 @@ export default function LoginPage() {
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Dual Panel</span>
+          <span>Back to Video Player</span>
         </Link>
 
         {/* Card */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-lg space-y-6">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 mx-auto flex items-center justify-center shadow-2xs">
+            <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-200 text-red-600 mx-auto flex items-center justify-center shadow-2xs">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">Admin Sign In</h1>
             <p className="text-xs text-slate-500">
-              Sign in to manage the active YouTube and Website links.
+              Sign in to update the featured YouTube video link.
             </p>
           </div>
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-700">Admin Username</label>
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 focus-within:bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 focus-within:bg-white focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-100 transition-all">
                 <User className="w-4 h-4 text-slate-400" />
                 <input
                   type="text"
@@ -93,7 +93,7 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-700">Password</label>
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 focus-within:bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 focus-within:bg-white focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-100 transition-all">
                 <Lock className="w-4 h-4 text-slate-400" />
                 <input
                   type="password"
@@ -109,7 +109,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold py-3 rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-semibold py-3 rounded-xl shadow-xs hover:shadow-sm transition-all cursor-pointer"
             >
               {loading ? (
                 <>
@@ -129,7 +129,7 @@ export default function LoginPage() {
               onClick={handleFillDemo}
               className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 rounded-xl border border-slate-200 transition-colors cursor-pointer"
             >
-              <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+              <KeyRound className="w-3.5 h-3.5 text-red-600" />
               <span>Fill Demo Credentials (admin / admin123)</span>
             </button>
           </div>

@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { RotateCw, ShieldCheck } from 'lucide-react';
+import { RotateCw, ShieldCheck, Tv } from 'lucide-react';
 import { YouTubeIcon } from './Icons';
 import { PresetItem } from '@/types';
 
 interface YouTubePanelProps {
   videoUrl?: string;
   presets?: PresetItem[];
-  onPlayVideo?: (url: string) => void;
 }
 
 export function parseYouTubeUrl(rawUrl: string): { videoId: string; startTime: number } | null {
@@ -91,21 +90,21 @@ export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
   return (
     <section className="bg-white border border-slate-200/90 rounded-2xl flex flex-col overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="bg-slate-50/80 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div className="bg-slate-50/80 border-b border-slate-200 px-4 py-3 sm:px-5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="p-1.5 bg-red-50 border border-red-200 text-red-600 rounded-lg">
             <YouTubeIcon className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-slate-900">YouTube Player</h2>
-              <span className="text-[10px] font-semibold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <h2 className="text-sm font-bold text-slate-900">Featured Stream</h2>
+              <span className="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3" />
-                <span>Admin Stream</span>
+                <span>Admin Approved</span>
               </span>
             </div>
             <p className="text-[11px] text-slate-500">
-              Playing active media stream configured by Admin
+              Only displaying the active video link set by Admin
             </p>
           </div>
         </div>
@@ -114,49 +113,48 @@ export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
           {activeUrl && (
             <button
               onClick={handleReload}
-              className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-200/70 rounded-lg transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition-colors cursor-pointer"
               title="Reload Video"
             >
               <RotateCw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Video Viewport */}
-      <div className="flex-1 min-h-[440px] bg-black flex flex-col relative">
+      {/* Video Viewport - 16:9 Aspect Ratio Container */}
+      <div className="relative w-full aspect-video bg-black flex flex-col items-center justify-center">
         {embedUrl ? (
-          <div className="relative w-full h-full min-h-[440px] flex flex-1">
-            <iframe
-              key={`${parsed?.videoId}-${refreshKey}`}
-              src={embedUrl}
-              title="Admin YouTube Video Player"
-              className="w-full flex-1 min-h-[440px] border-0"
-              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          <iframe
+            key={`${parsed?.videoId}-${refreshKey}`}
+            src={embedUrl}
+            title="Admin YouTube Video Player"
+            className="w-full h-full border-0 absolute inset-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
         ) : (
-          <div className="m-auto text-center p-8 max-w-sm space-y-3">
-            <div className="w-14 h-14 mx-auto rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-red-600">
-              <YouTubeIcon className="w-7 h-7" />
+          <div className="text-center p-8 max-w-sm space-y-3">
+            <div className="w-14 h-14 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-red-500">
+              <Tv className="w-7 h-7" />
             </div>
-            <h3 className="text-sm font-bold text-slate-800">No Video Configured</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <h3 className="text-sm font-bold text-white">No Video Configured</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
               No active media stream has been set by the admin yet.
             </p>
           </div>
         )}
       </div>
 
-      {/* Clean Footer - Zero exposed URLs */}
-      <div className="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-[11px] text-slate-600">
+      {/* Clean Footer - Light Theme */}
+      <div className="bg-slate-50/90 border-t border-slate-200 px-4 py-2.5 sm:px-5 flex items-center justify-between text-[11px] text-slate-600">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-slate-700">Live Video Player</span>
+          <span className="font-semibold text-slate-700">Live Video Stream</span>
         </div>
-        <span className="text-[10px] uppercase font-mono font-semibold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full shrink-0">
-          ✓ Verified Admin Stream
+        <span className="text-[11px] font-mono text-slate-500">
+          HD Playback Enabled
         </span>
       </div>
     </section>
