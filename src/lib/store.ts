@@ -6,11 +6,14 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'store.json');
 
 interface AppData {
+  activeVideoUrl?: string;
   presets: PresetItem[];
   history: HistoryItem[];
   settings: ProxySettings;
   adminCredentials?: AdminCredentials;
 }
+
+const DEFAULT_VIDEO_URL = 'https://youtu.be/TtJILk3vXnc';
 
 const DEFAULT_CREDENTIALS: AdminCredentials = {
   username: process.env.ADMIN_USERNAME || 'admin',
@@ -19,27 +22,6 @@ const DEFAULT_CREDENTIALS: AdminCredentials = {
 };
 
 const DEFAULT_PRESETS: PresetItem[] = [
-  {
-    id: 'yt-1',
-    title: '🎧 Lofi Girl',
-    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
-    type: 'youtube',
-    description: 'Relaxing beats to code/study to'
-  },
-  {
-    id: 'yt-2',
-    title: '🌿 Relaxing 4K Nature',
-    url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
-    type: 'youtube',
-    description: 'Scenic Swiss Alps 4K footage'
-  },
-  {
-    id: 'yt-3',
-    title: '⚡ Synthwave Coding',
-    url: 'https://www.youtube.com/watch?v=4xDzrJKXOOY',
-    type: 'youtube',
-    description: 'High tempo cyberpunk focus music'
-  },
   {
     id: 'web-1',
     title: '📖 Wikipedia',
@@ -81,6 +63,7 @@ function readData(): AppData {
       const raw = fs.readFileSync(DATA_FILE, 'utf-8');
       const parsed = JSON.parse(raw);
       return {
+        activeVideoUrl: parsed.activeVideoUrl || DEFAULT_VIDEO_URL,
         presets: parsed.presets || DEFAULT_PRESETS,
         history: parsed.history || [],
         settings: parsed.settings || DEFAULT_SETTINGS,
@@ -92,6 +75,7 @@ function readData(): AppData {
   }
 
   return {
+    activeVideoUrl: DEFAULT_VIDEO_URL,
     presets: DEFAULT_PRESETS,
     history: [],
     settings: DEFAULT_SETTINGS,
@@ -108,6 +92,19 @@ function writeData(data: AppData) {
   } catch (e) {
     console.error('Error writing store.json:', e);
   }
+}
+
+// Active Video Operations
+export function getActiveVideoUrl(): string {
+  const data = readData();
+  return data.activeVideoUrl || DEFAULT_VIDEO_URL;
+}
+
+export function setActiveVideoUrl(url: string): string {
+  const data = readData();
+  data.activeVideoUrl = url.trim();
+  writeData(data);
+  return data.activeVideoUrl;
 }
 
 // Admin Credentials Operations

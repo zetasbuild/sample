@@ -9,23 +9,30 @@ import { PresetItem } from '@/types';
 export default function HomePage() {
   const [viewMode, setViewMode] = useState<'split' | 'youtube' | 'website'>('split');
   const [orientation, setOrientation] = useState<'columns' | 'rows'>('columns');
-  const [ytPresets, setYtPresets] = useState<PresetItem[]>([]);
   const [webPresets, setWebPresets] = useState<PresetItem[]>([]);
+  const [activeVideoUrl, setActiveVideoUrl] = useState<string>('https://youtu.be/TtJILk3vXnc');
   const [adminUser, setAdminUser] = useState<{ username: string } | null>(null);
 
-  // Fetch initial presets and auth status
+  // Fetch initial video, presets, and auth status
   useEffect(() => {
     async function loadData() {
       try {
-        const [presetsRes, authRes] = await Promise.all([
+        const [videoRes, presetsRes, authRes] = await Promise.all([
+          fetch('/api/video'),
           fetch('/api/presets'),
           fetch('/api/auth/me')
         ]);
 
+        if (videoRes.ok) {
+          const vData = await videoRes.json();
+          if (vData.url) {
+            setActiveVideoUrl(vData.url);
+          }
+        }
+
         if (presetsRes.ok) {
           const data = await presetsRes.json();
           if (data.presets) {
-            setYtPresets(data.presets.filter((p: PresetItem) => p.type === 'youtube'));
             setWebPresets(data.presets.filter((p: PresetItem) => p.type === 'website'));
           }
         }
@@ -86,7 +93,7 @@ export default function HomePage() {
             }`}
           >
             <YouTubePanel
-              presets={ytPresets}
+              videoUrl={activeVideoUrl}
               onPlayVideo={(url) => logActivity(url, 'youtube')}
             />
             <WebsitePanel
@@ -97,7 +104,7 @@ export default function HomePage() {
         ) : viewMode === 'youtube' ? (
           <div className="flex-1 flex flex-col">
             <YouTubePanel
-              presets={ytPresets}
+              videoUrl={activeVideoUrl}
               onPlayVideo={(url) => logActivity(url, 'youtube')}
             />
           </div>
