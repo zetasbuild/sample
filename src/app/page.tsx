@@ -8,7 +8,7 @@ import YouTubePanel from '@/components/YouTubePanel';
 import { YouTubeIcon } from '@/components/Icons';
 
 export default function HomePage() {
-  const [activeVideoUrl, setActiveVideoUrl] = useState<string>('');
+  const [activeVideoUrl, setActiveVideoUrl] = useState<string>('https://youtu.be/vUjkbW6qM6A');
   const [currentUser, setCurrentUser] = useState<{ username: string } | null>(null);
   const [loading, setLoading] = useState(true);
 

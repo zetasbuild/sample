@@ -14,7 +14,7 @@ interface AppData {
   adminCredentials?: AdminCredentials;
 }
 
-const DEFAULT_VIDEO_URL = '';
+const DEFAULT_VIDEO_URL = 'https://youtu.be/vUjkbW6qM6A';
 const DEFAULT_WEBSITE_URL = '';
 
 const DEFAULT_CREDENTIALS: AdminCredentials = {

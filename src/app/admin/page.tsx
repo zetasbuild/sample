@@ -21,8 +21,8 @@ export default function AdminPage() {
   const [adminUsername, setAdminUsername] = useState<string>('admin');
 
   // YouTube Video link state
-  const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [activeVideo, setActiveVideo] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('https://youtu.be/vUjkbW6qM6A');
+  const [activeVideo, setActiveVideo] = useState('https://youtu.be/vUjkbW6qM6A');
   const [savingVideo, setSavingVideo] = useState(false);
   const [videoMsg, setVideoMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 

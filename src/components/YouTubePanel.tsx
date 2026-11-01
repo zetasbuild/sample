@@ -130,7 +130,7 @@ function formatTime(seconds: number): string {
 }
 
 export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
-  const activeUrl = videoUrl || (presets && presets.length > 0 ? presets[0].url : '');
+  const activeUrl = videoUrl || (presets && presets.length > 0 ? presets[0].url : 'https://youtu.be/vUjkbW6qM6A');
   const parsed = parseYouTubeUrl(activeUrl);
   const videoId = parsed?.videoId || null;
 
