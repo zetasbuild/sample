@@ -7,50 +7,21 @@ const DATA_FILE = path.join(DATA_DIR, 'store.json');
 
 interface AppData {
   activeVideoUrl?: string;
-  presets: PresetItem[];
-  history: HistoryItem[];
+  activeWebsiteUrl?: string;
+  presets?: PresetItem[];
+  history?: HistoryItem[];
   settings: ProxySettings;
   adminCredentials?: AdminCredentials;
 }
 
 const DEFAULT_VIDEO_URL = 'https://youtu.be/TtJILk3vXnc';
+const DEFAULT_WEBSITE_URL = 'https://en.wikipedia.org';
 
 const DEFAULT_CREDENTIALS: AdminCredentials = {
   username: process.env.ADMIN_USERNAME || 'admin',
   passwordPlain: process.env.ADMIN_PASSWORD || 'admin123',
   updatedAt: Date.now()
 };
-
-const DEFAULT_PRESETS: PresetItem[] = [
-  {
-    id: 'web-1',
-    title: '📖 Wikipedia',
-    url: 'https://en.wikipedia.org',
-    type: 'website',
-    description: 'The Free Encyclopedia'
-  },
-  {
-    id: 'web-2',
-    title: '📰 Hacker News',
-    url: 'https://news.ycombinator.com',
-    type: 'website',
-    description: 'Tech & startup discussions'
-  },
-  {
-    id: 'web-3',
-    title: '🗺️ OpenStreetMap',
-    url: 'https://www.openstreetmap.org',
-    type: 'website',
-    description: 'Free editable map of the world'
-  },
-  {
-    id: 'web-4',
-    title: '📄 Example Domain',
-    url: 'https://example.com',
-    type: 'website',
-    description: 'Standard RFC documentation example'
-  }
-];
 
 const DEFAULT_SETTINGS: ProxySettings = {
   enabled: true,
@@ -64,7 +35,8 @@ function readData(): AppData {
       const parsed = JSON.parse(raw);
       return {
         activeVideoUrl: parsed.activeVideoUrl || DEFAULT_VIDEO_URL,
-        presets: parsed.presets || DEFAULT_PRESETS,
+        activeWebsiteUrl: parsed.activeWebsiteUrl || DEFAULT_WEBSITE_URL,
+        presets: parsed.presets || [],
         history: parsed.history || [],
         settings: parsed.settings || DEFAULT_SETTINGS,
         adminCredentials: parsed.adminCredentials || DEFAULT_CREDENTIALS
@@ -76,7 +48,8 @@ function readData(): AppData {
 
   return {
     activeVideoUrl: DEFAULT_VIDEO_URL,
-    presets: DEFAULT_PRESETS,
+    activeWebsiteUrl: DEFAULT_WEBSITE_URL,
+    presets: [],
     history: [],
     settings: DEFAULT_SETTINGS,
     adminCredentials: DEFAULT_CREDENTIALS
@@ -107,6 +80,98 @@ export function setActiveVideoUrl(url: string): string {
   return data.activeVideoUrl;
 }
 
+// Active Website Operations
+export function getActiveWebsiteUrl(): string {
+  const data = readData();
+  return data.activeWebsiteUrl || DEFAULT_WEBSITE_URL;
+}
+
+export function setActiveWebsiteUrl(url: string): string {
+  const data = readData();
+  let normalized = url.trim();
+  if (normalized && !normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+    normalized = 'https://' + normalized;
+  }
+  data.activeWebsiteUrl = normalized;
+  writeData(data);
+  return data.activeWebsiteUrl;
+}
+
+// Presets compatibility operations
+export function getPresets(type?: 'youtube' | 'website'): PresetItem[] {
+  const data = readData();
+  const list = data.presets || [];
+  if (type) {
+    return list.filter(p => p.type === type);
+  }
+  return list;
+}
+
+export function addPreset(preset: Omit<PresetItem, 'id'>): PresetItem {
+  const data = readData();
+  const newItem: PresetItem = {
+    ...preset,
+    id: `preset-${Date.now()}`
+  };
+  data.presets = data.presets || [];
+  data.presets.unshift(newItem);
+  writeData(data);
+  return newItem;
+}
+
+export function deletePreset(id: string): boolean {
+  const data = readData();
+  if (!data.presets) return false;
+  const initialLen = data.presets.length;
+  data.presets = data.presets.filter(p => p.id !== id);
+  if (data.presets.length !== initialLen) {
+    writeData(data);
+    return true;
+  }
+  return false;
+}
+
+// History operations
+export function getHistory(limit = 20, type?: 'youtube' | 'website'): HistoryItem[] {
+  const data = readData();
+  let list = data.history || [];
+  if (type) {
+    list = list.filter(h => h.type === type);
+  }
+  return list.slice(0, limit);
+}
+
+export function addHistory(item: Omit<HistoryItem, 'id' | 'timestamp'>): HistoryItem {
+  const data = readData();
+  const newHistory: HistoryItem = {
+    ...item,
+    id: `hist-${Date.now()}`,
+    timestamp: Date.now()
+  };
+
+  data.history = data.history || [];
+  data.history = data.history.filter(h => h.url !== item.url);
+  data.history.unshift(newHistory);
+
+  if (data.history.length > 100) {
+    data.history = data.history.slice(0, 100);
+  }
+
+  writeData(data);
+  return newHistory;
+}
+
+export function clearHistory(type?: 'youtube' | 'website'): void {
+  const data = readData();
+  if (!data.history) return;
+  if (type) {
+    data.history = data.history.filter(h => h.type !== type);
+  } else {
+    data.history = [];
+  }
+  writeData(data);
+}
+
 // Admin Credentials Operations
 export function getAdminCredentials(): AdminCredentials {
   const data = readData();
@@ -123,76 +188,6 @@ export function updateAdminCredentials(username: string, passwordPlain: string):
   data.adminCredentials = updated;
   writeData(data);
   return updated;
-}
-
-// Preset operations
-export function getPresets(type?: 'youtube' | 'website'): PresetItem[] {
-  const data = readData();
-  if (type) {
-    return data.presets.filter(p => p.type === type);
-  }
-  return data.presets;
-}
-
-export function addPreset(preset: Omit<PresetItem, 'id'>): PresetItem {
-  const data = readData();
-  const newItem: PresetItem = {
-    ...preset,
-    id: `preset-${Date.now()}`
-  };
-  data.presets.unshift(newItem);
-  writeData(data);
-  return newItem;
-}
-
-export function deletePreset(id: string): boolean {
-  const data = readData();
-  const initialLen = data.presets.length;
-  data.presets = data.presets.filter(p => p.id !== id);
-  if (data.presets.length !== initialLen) {
-    writeData(data);
-    return true;
-  }
-  return false;
-}
-
-// History operations
-export function getHistory(limit = 20, type?: 'youtube' | 'website'): HistoryItem[] {
-  const data = readData();
-  let list = data.history;
-  if (type) {
-    list = list.filter(h => h.type === type);
-  }
-  return list.slice(0, limit);
-}
-
-export function addHistory(item: Omit<HistoryItem, 'id' | 'timestamp'>): HistoryItem {
-  const data = readData();
-  const newHistory: HistoryItem = {
-    ...item,
-    id: `hist-${Date.now()}`,
-    timestamp: Date.now()
-  };
-
-  data.history = data.history.filter(h => h.url !== item.url);
-  data.history.unshift(newHistory);
-
-  if (data.history.length > 100) {
-    data.history = data.history.slice(0, 100);
-  }
-
-  writeData(data);
-  return newHistory;
-}
-
-export function clearHistory(type?: 'youtube' | 'website'): void {
-  const data = readData();
-  if (type) {
-    data.history = data.history.filter(h => h.type !== type);
-  } else {
-    data.history = [];
-  }
-  writeData(data);
 }
 
 // Settings operations

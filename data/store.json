@@ -1,63 +1,6 @@
 {
-  "presets": [
-    {
-      "id": "yt-user",
-      "title": "🎬 Admin Featured Video",
-      "url": "https://youtu.be/TtJILk3vXnc",
-      "type": "youtube",
-      "description": "Featured video added by admin"
-    },
-    {
-      "id": "yt-1",
-      "title": "🎧 Lofi Girl",
-      "url": "https://www.youtube.com/watch?v=jfKfPfyJRdk",
-      "type": "youtube",
-      "description": "Relaxing beats to code/study to"
-    },
-    {
-      "id": "yt-2",
-      "title": "🌿 Relaxing 4K Nature",
-      "url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
-      "type": "youtube",
-      "description": "Scenic Swiss Alps 4K footage"
-    },
-    {
-      "id": "yt-3",
-      "title": "⚡ Synthwave Coding",
-      "url": "https://www.youtube.com/watch?v=4xDzrJKXOOY",
-      "type": "youtube",
-      "description": "High tempo cyberpunk focus music"
-    },
-    {
-      "id": "web-1",
-      "title": "📖 Wikipedia",
-      "url": "https://en.wikipedia.org",
-      "type": "website",
-      "description": "The Free Encyclopedia"
-    },
-    {
-      "id": "web-2",
-      "title": "📰 Hacker News",
-      "url": "https://news.ycombinator.com",
-      "type": "website",
-      "description": "Tech & startup discussions"
-    },
-    {
-      "id": "web-3",
-      "title": "🗺️ OpenStreetMap",
-      "url": "https://www.openstreetmap.org",
-      "type": "website",
-      "description": "Free editable map of the world"
-    },
-    {
-      "id": "web-4",
-      "title": "📄 Example Domain",
-      "url": "https://example.com",
-      "type": "website",
-      "description": "Standard RFC documentation example"
-    }
-  ],
-  "history": [],
+  "activeVideoUrl": "https://youtu.be/TtJILk3vXnc",
+  "activeWebsiteUrl": "https://en.wikipedia.org",
   "settings": {
     "enabled": true,
     "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"

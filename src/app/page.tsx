@@ -4,22 +4,21 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import YouTubePanel from '@/components/YouTubePanel';
 import WebsitePanel from '@/components/WebsitePanel';
-import { PresetItem } from '@/types';
 
 export default function HomePage() {
   const [viewMode, setViewMode] = useState<'split' | 'youtube' | 'website'>('split');
   const [orientation, setOrientation] = useState<'columns' | 'rows'>('columns');
-  const [webPresets, setWebPresets] = useState<PresetItem[]>([]);
   const [activeVideoUrl, setActiveVideoUrl] = useState<string>('https://youtu.be/TtJILk3vXnc');
+  const [activeWebsiteUrl, setActiveWebsiteUrl] = useState<string>('https://en.wikipedia.org');
   const [adminUser, setAdminUser] = useState<{ username: string } | null>(null);
 
-  // Fetch initial video, presets, and auth status
+  // Fetch initial video, website link, and auth status
   useEffect(() => {
     async function loadData() {
       try {
-        const [videoRes, presetsRes, authRes] = await Promise.all([
+        const [videoRes, webRes, authRes] = await Promise.all([
           fetch('/api/video'),
-          fetch('/api/presets'),
+          fetch('/api/website'),
           fetch('/api/auth/me')
         ]);
 
@@ -30,10 +29,10 @@ export default function HomePage() {
           }
         }
 
-        if (presetsRes.ok) {
-          const data = await presetsRes.json();
-          if (data.presets) {
-            setWebPresets(data.presets.filter((p: PresetItem) => p.type === 'website'));
+        if (webRes.ok) {
+          const wData = await webRes.json();
+          if (wData.url) {
+            setActiveWebsiteUrl(wData.url);
           }
         }
 
@@ -97,7 +96,7 @@ export default function HomePage() {
               onPlayVideo={(url) => logActivity(url, 'youtube')}
             />
             <WebsitePanel
-              presets={webPresets}
+              websiteUrl={activeWebsiteUrl}
               onOpenSite={(url) => logActivity(url, 'website')}
             />
           </div>
@@ -111,7 +110,7 @@ export default function HomePage() {
         ) : (
           <div className="flex-1 flex flex-col">
             <WebsitePanel
-              presets={webPresets}
+              websiteUrl={activeWebsiteUrl}
               onOpenSite={(url) => logActivity(url, 'website')}
             />
           </div>
