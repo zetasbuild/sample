@@ -130,7 +130,7 @@ function formatTime(seconds: number): string {
 }
 
 export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
-  const activeUrl = videoUrl || (presets && presets.length > 0 ? presets[0].url : 'https://youtu.be/TtJILk3vXnc');
+  const activeUrl = videoUrl || (presets && presets.length > 0 ? presets[0].url : '');
   const parsed = parseYouTubeUrl(activeUrl);
   const videoId = parsed?.videoId || null;
 
@@ -549,13 +549,13 @@ export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
             </div>
           </>
         ) : (
-          <div className="text-center p-8 max-w-sm space-y-3">
-            <div className="w-14 h-14 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-red-500">
+          <div className="text-center p-8 max-w-sm space-y-3 bg-white border border-slate-200 rounded-2xl shadow-xs">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center text-red-600 shadow-2xs">
               <Tv className="w-7 h-7" />
             </div>
-            <h3 className="text-sm font-bold text-white">No Video Configured</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              No active media stream has been set by the admin yet.
+            <h3 className="text-base font-bold text-slate-900">No Video Configured Yet</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              The administrator has not added any video yet. Please check back later or add one via the Admin Panel.
             </p>
           </div>
         )}
@@ -564,11 +564,13 @@ export default function YouTubePanel({ videoUrl, presets }: YouTubePanelProps) {
       {/* Clean Footer - Light Theme */}
       <div className="bg-slate-50/90 border-t border-slate-200 px-4 py-2.5 sm:px-5 flex items-center justify-between text-[11px] text-slate-600">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-slate-700">Live Video Stream</span>
+          <span className={`w-2 h-2 rounded-full ${videoId ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+          <span className="font-semibold text-slate-700">
+            {videoId ? 'Live Video Stream' : 'Awaiting Video Stream'}
+          </span>
         </div>
         <span className="text-[11px] font-mono text-slate-500">
-          Link Copying Disabled
+          {videoId ? 'Link Copying Disabled' : 'No Active Video'}
         </span>
       </div>
     </section>

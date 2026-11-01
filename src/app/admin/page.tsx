@@ -22,7 +22,7 @@ export default function AdminPage() {
 
   // YouTube Video link state
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [activeVideo, setActiveVideo] = useState('https://youtu.be/TtJILk3vXnc');
+  const [activeVideo, setActiveVideo] = useState('');
   const [savingVideo, setSavingVideo] = useState(false);
   const [videoMsg, setVideoMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -252,9 +252,11 @@ export default function AdminPage() {
           <div className="border-t border-slate-100 pt-4 space-y-2.5">
             <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
               <span>Active URL:</span>
-              <span className="text-red-700 font-semibold truncate max-w-xs">{activeVideo}</span>
+              <span className="text-red-700 font-semibold truncate max-w-xs">
+                {activeVideo || 'None set yet'}
+              </span>
             </div>
-            {embedUrl && (
+            {embedUrl ? (
               <div className="w-full rounded-xl overflow-hidden border border-slate-200 bg-black aspect-video shadow-2xs">
                 <iframe
                   src={embedUrl}
@@ -262,6 +264,16 @@ export default function AdminPage() {
                   className="w-full h-full border-0"
                   allow="accelerometer; autoplay; encrypted-media"
                 />
+              </div>
+            ) : (
+              <div className="w-full rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-400 mx-auto flex items-center justify-center">
+                  <Play className="w-5 h-5 fill-current" />
+                </div>
+                <p className="text-xs font-semibold text-slate-700">No Video Configured</p>
+                <p className="text-[11px] text-slate-500">
+                  Paste a YouTube URL above and click &quot;Save YouTube Link&quot; to publish your video.
+                </p>
               </div>
             )}
           </div>
