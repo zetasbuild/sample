@@ -58,14 +58,14 @@ npm start
 - Clean 16:9 responsive embed container (`youtube-nocookie.com`).
 - Recent video history chips.
 
-### 2. Website Viewer Panel
-- Automatic URL normalization (prepends `https://` if omitted).
+### 2. Website Viewer Panel (Admin Links View-Only)
+- **View-Only Mode**: Users can **only select and view links added by the Admin** (prevents browsing to random/unauthorized sites).
+- **Admin Directory Tabs**: Displays clean clickable badges/tabs for all admin-approved bookmarks.
 - **Smart Bypass Proxy** (`/api/proxy?url=...`):
   - Strips `X-Frame-Options` and `Content-Security-Policy` headers.
   - Injects `<base href="...">` so relative CSS/images resolve to the original site.
   - Allows sites like Wikipedia, Hacker News, MDN, OpenStreetMap to render inside the frame.
 - Browser mock header with URL display, reload button, and external tab pop-out.
-- One-click Paste button and recent history chips.
 
 ### 3. Layout Modes
 - **🔀 Split View**: Watch YouTube and browse the website simultaneously (columns or rows).
