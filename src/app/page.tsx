@@ -59,20 +59,8 @@ export default function HomePage() {
     }
   };
 
-  const logActivity = async (url: string, type: 'youtube' | 'website') => {
-    try {
-      await fetch('/api/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, type })
-      });
-    } catch {
-      // Ignore background log error
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <Navbar
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -85,34 +73,22 @@ export default function HomePage() {
       <main className="flex-1 p-3 sm:p-5 max-w-[1920px] mx-auto w-full flex flex-col">
         {viewMode === 'split' ? (
           <div
-            className={`grid gap-4 flex-1 ${
+            className={`grid gap-5 flex-1 ${
               orientation === 'columns'
                 ? 'grid-cols-1 lg:grid-cols-2'
                 : 'grid-cols-1'
             }`}
           >
-            <YouTubePanel
-              videoUrl={activeVideoUrl}
-              onPlayVideo={(url) => logActivity(url, 'youtube')}
-            />
-            <WebsitePanel
-              websiteUrl={activeWebsiteUrl}
-              onOpenSite={(url) => logActivity(url, 'website')}
-            />
+            <YouTubePanel videoUrl={activeVideoUrl} />
+            <WebsitePanel websiteUrl={activeWebsiteUrl} />
           </div>
         ) : viewMode === 'youtube' ? (
           <div className="flex-1 flex flex-col">
-            <YouTubePanel
-              videoUrl={activeVideoUrl}
-              onPlayVideo={(url) => logActivity(url, 'youtube')}
-            />
+            <YouTubePanel videoUrl={activeVideoUrl} />
           </div>
         ) : (
           <div className="flex-1 flex flex-col">
-            <WebsitePanel
-              websiteUrl={activeWebsiteUrl}
-              onOpenSite={(url) => logActivity(url, 'website')}
-            />
+            <WebsitePanel websiteUrl={activeWebsiteUrl} />
           </div>
         )}
       </main>

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'DualView | YouTube & Website Panel',
-  description: 'Copy, paste and view YouTube videos and Websites side-by-side with Smart Bypass and Admin Controls',
+  title: 'DualView | Video & Website Panel',
+  description: 'Clean light-theme dual panel for YouTube videos and Websites',
 };
 
 export default function RootLayout({
@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark`}>
-      <body className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} light`}>
+      <body className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased">
         {children}
       </body>
     </html>
