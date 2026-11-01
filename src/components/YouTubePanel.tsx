@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Clipboard, Play, X, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ExternalLink, RotateCw, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { YouTubeIcon } from './Icons';
 import { PresetItem } from '@/types';
 
@@ -69,63 +69,51 @@ export function parseYouTubeUrl(rawUrl: string): { videoId: string; startTime: n
 }
 
 export default function YouTubePanel({ presets, onPlayVideo }: YouTubePanelProps) {
-  const [urlInput, setUrlInput] = useState('');
-  const [activeEmbedUrl, setActiveEmbedUrl] = useState<string | null>(null);
-  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [recentUrls, setRecentUrls] = useState<string[]>([]);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleLoadVideo = (targetUrl?: string) => {
-    const urlToLoad = targetUrl || urlInput;
-    if (!urlToLoad.trim()) {
-      setErrorMsg('Please paste a YouTube link');
-      return;
-    }
-
-    const parsed = parseYouTubeUrl(urlToLoad);
-    if (!parsed) {
-      setErrorMsg('Invalid YouTube URL. Check watch?v=, youtu.be, or shorts.');
-      return;
-    }
-
-    setErrorMsg(null);
-    let embed = `https://www.youtube-nocookie.com/embed/${parsed.videoId}?autoplay=1&rel=0`;
-    if (parsed.startTime > 0) {
-      embed += `&start=${parsed.startTime}`;
-    }
-
-    setActiveVideoId(parsed.videoId);
-    setActiveEmbedUrl(embed);
-
-    // Update history
-    setRecentUrls((prev) => {
-      const filtered = prev.filter((u) => u !== urlToLoad);
-      return [urlToLoad, ...filtered].slice(0, 5);
-    });
-
-    if (onPlayVideo) {
-      onPlayVideo(urlToLoad);
-    }
-  };
-
-  const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (text) {
-        setUrlInput(text);
-        handleLoadVideo(text);
+  // Auto-select first admin video link when presets load or change
+  useEffect(() => {
+    if (presets && presets.length > 0) {
+      if (!selectedPresetId || !presets.some((p) => p.id === selectedPresetId)) {
+        const firstPreset = presets[0];
+        setSelectedPresetId(firstPreset.id);
+        if (onPlayVideo) {
+          onPlayVideo(firstPreset.url);
+        }
       }
-    } catch {
-      setErrorMsg('Clipboard permission not granted. Use Cmd+V.');
+    } else {
+      setSelectedPresetId(null);
+    }
+  }, [presets, selectedPresetId, onPlayVideo]);
+
+  const activePreset = presets.find((p) => p.id === selectedPresetId) || null;
+
+  const handleSelectPreset = (preset: PresetItem) => {
+    setSelectedPresetId(preset.id);
+    setRefreshKey((k) => k + 1);
+    if (onPlayVideo) {
+      onPlayVideo(preset.url);
     }
   };
 
-  const handleClear = () => {
-    setActiveEmbedUrl(null);
-    setActiveVideoId(null);
-    setUrlInput('');
-    setErrorMsg(null);
+  const handleReload = () => {
+    setRefreshKey((k) => k + 1);
   };
+
+  const getEmbedUrl = (): string | null => {
+    if (!activePreset) return null;
+    const parsed = parseYouTubeUrl(activePreset.url);
+    if (!parsed) return null;
+
+    let url = `https://www.youtube-nocookie.com/embed/${parsed.videoId}?autoplay=1&rel=0`;
+    if (parsed.startTime > 0) {
+      url += `&start=${parsed.startTime}`;
+    }
+    return url;
+  };
+
+  const embedUrl = getEmbedUrl();
 
   return (
     <section className="bg-slate-900 border border-slate-800 rounded-xl flex flex-col overflow-hidden shadow-lg">
@@ -133,96 +121,100 @@ export default function YouTubePanel({ presets, onPlayVideo }: YouTubePanelProps
       <div className="bg-slate-800/60 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <YouTubeIcon className="w-5 h-5 text-red-500" />
-          <h2 className="text-sm font-semibold text-slate-100">YouTube Player</h2>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-sm font-semibold text-slate-100">Video Player</h2>
+              <span className="text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.2 rounded-full flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" />
+                <span>Admin Videos Only</span>
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              View-only mode: Only approved videos added by Admin are displayed
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {activeVideoId ? (
-            <span className="text-[11px] font-mono bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded-full">
-              ID: {activeVideoId}
-            </span>
-          ) : (
-            <span className="text-[11px] text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
-              Idle
-            </span>
-          )}
-          {activeEmbedUrl && (
-            <button
-              onClick={handleClear}
-              className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded hover:bg-slate-700/50 transition-colors"
-            >
-              Clear
-            </button>
+
+        <div className="flex items-center gap-1.5">
+          {activePreset && (
+            <>
+              <button
+                onClick={handleReload}
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+                title="Reload Video"
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+              </button>
+              <a
+                href={activePreset.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+                title="Open on YouTube"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </>
           )}
         </div>
       </div>
 
-      {/* URL Input Bar */}
-      <div className="p-4 space-y-3">
-        <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg p-1.5 focus-within:border-blue-500 transition-colors">
-          <span className="pl-2 text-slate-500 text-xs">🔗</span>
-          <input
-            type="text"
-            value={urlInput}
-            onChange={(e) => {
-              setUrlInput(e.target.value);
-              setErrorMsg(null);
-            }}
-            onKeyDown={(e) => e.key === 'Enter' && handleLoadVideo()}
-            placeholder="Paste YouTube link (watch?v=..., youtu.be/..., shorts/...)"
-            className="flex-1 bg-transparent text-xs sm:text-sm font-mono text-slate-200 outline-none placeholder:text-slate-500 placeholder:font-sans px-2"
-          />
-          <button
-            onClick={handlePaste}
-            className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium px-2.5 py-1.5 rounded transition-colors"
-            title="Paste from clipboard"
-          >
-            <Clipboard className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Paste</span>
-          </button>
-          <button
-            onClick={() => handleLoadVideo()}
-            className="flex items-center gap-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-medium px-3.5 py-1.5 rounded shadow-sm hover:shadow-red-500/20 transition-all"
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Play</span>
-          </button>
+      {/* Admin Video Selector Bar (View Only - No input boxes) */}
+      <div className="p-3.5 bg-slate-950/60 border-b border-slate-800 space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+            <CheckCircle2 className="w-3.5 h-3.5 text-red-400" />
+            <span>Select Admin Added Video:</span>
+            <span className="text-[11px] font-mono text-slate-500">
+              ({presets.length} available)
+            </span>
+          </div>
         </div>
 
-        {errorMsg && (
-          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded p-2">
-            {errorMsg}
-          </p>
-        )}
-
-        {/* Preset Chips */}
-        {presets && presets.length > 0 && (
-          <div className="flex items-center flex-wrap gap-1.5">
-            <span className="text-[11px] font-medium text-slate-500 mr-1">Presets:</span>
-            {presets.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => {
-                  setUrlInput(preset.url);
-                  handleLoadVideo(preset.url);
-                }}
-                className="text-[11px] bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-slate-300 hover:text-white px-2 py-0.5 rounded-full transition-colors"
-                title={preset.description || preset.url}
-              >
-                {preset.title}
-              </button>
-            ))}
+        {/* Video Selection Chips/Tabs */}
+        {presets && presets.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2 max-h-24 overflow-y-auto">
+            {presets.map((preset) => {
+              const isSelected = preset.id === selectedPresetId;
+              return (
+                <button
+                  key={preset.id}
+                  onClick={() => handleSelectPreset(preset)}
+                  className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${
+                    isSelected
+                      ? 'bg-red-600 text-white border-red-500 shadow-sm shadow-red-500/20'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border-slate-800'
+                  }`}
+                  title={preset.description || preset.url}
+                >
+                  <YouTubeIcon className="w-3.5 h-3.5" />
+                  <span className="font-semibold">{preset.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="p-3 bg-slate-900 border border-slate-800 rounded-lg text-xs text-amber-400/90 flex items-center justify-between">
+            <span>No videos have been added by the admin yet.</span>
+            <a
+              href="/login"
+              className="text-red-400 hover:text-red-300 underline font-medium ml-2"
+            >
+              Sign in as Admin to add videos →
+            </a>
           </div>
         )}
       </div>
 
-      {/* Video Viewport */}
+      {/* Video Viewport (Direct embed without clutter) */}
       <div className="flex-1 min-h-[380px] bg-black flex flex-col relative">
-        {activeEmbedUrl ? (
-          <div className="relative w-full h-full min-h-[380px] flex">
+        {embedUrl ? (
+          <div className="relative w-full h-full min-h-[380px] flex flex-1">
             <iframe
-              src={activeEmbedUrl}
-              title="YouTube video player"
-              className="w-full h-full min-h-[380px] border-0"
+              key={`${activePreset?.id}-${refreshKey}`}
+              src={embedUrl}
+              title={activePreset?.title || 'YouTube Video'}
+              className="w-full flex-1 min-h-[380px] border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
@@ -232,50 +224,33 @@ export default function YouTubePanel({ presets, onPlayVideo }: YouTubePanelProps
             <div className="w-14 h-14 mx-auto rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-red-500">
               <YouTubeIcon className="w-7 h-7" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-200">No Video Loaded</h3>
+            <h3 className="text-sm font-semibold text-slate-200">No Video Available</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Copy any YouTube link from your browser and click <strong>Paste &amp; Play</strong> above.
+              This panel only displays videos added and approved in the Admin Control Panel.
             </p>
-            <div className="flex flex-wrap justify-center gap-1.5 pt-2">
-              <span className="text-[10px] bg-slate-800/80 text-slate-400 px-2 py-0.5 rounded">
-                ✓ watch?v=
-              </span>
-              <span className="text-[10px] bg-slate-800/80 text-slate-400 px-2 py-0.5 rounded">
-                ✓ youtu.be
-              </span>
-              <span className="text-[10px] bg-slate-800/80 text-slate-400 px-2 py-0.5 rounded">
-                ✓ shorts/
-              </span>
-              <span className="text-[10px] bg-slate-800/80 text-slate-400 px-2 py-0.5 rounded">
-                ✓ timestamps ?t=
-              </span>
+            <div className="pt-2">
+              <a
+                href="/login"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <span>Sign in as Admin to Add Videos</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
         )}
       </div>
 
-      {/* Recent History */}
-      {recentUrls.length > 0 && (
-        <div className="bg-slate-950/80 border-t border-slate-800 px-4 py-2 flex items-center gap-2 overflow-x-auto">
-          <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-          <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider shrink-0">
-            Recent:
-          </span>
-          <div className="flex items-center gap-1.5 overflow-x-auto">
-            {recentUrls.map((url, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setUrlInput(url);
-                  handleLoadVideo(url);
-                }}
-                className="text-[11px] font-mono text-slate-400 hover:text-white bg-slate-800 px-2 py-0.5 rounded truncate max-w-[140px] transition-colors"
-                title={url}
-              >
-                {url}
-              </button>
-            ))}
+      {/* Footer Info Pill */}
+      {activePreset && (
+        <div className="bg-slate-950/80 border-t border-slate-800 px-4 py-2 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="flex items-center gap-1.5 truncate">
+            <span className="font-semibold text-slate-300">{activePreset.title}:</span>
+            <span className="text-slate-500 truncate">{activePreset.description || activePreset.url}</span>
           </div>
+          <span className="text-[10px] uppercase font-mono text-red-400 bg-red-500/10 px-2 py-0.5 rounded shrink-0">
+            ✓ Admin Approved Video
+          </span>
         </div>
       )}
     </section>

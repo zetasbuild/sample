@@ -47,16 +47,11 @@ npm start
 
 ## 🎯 Key Panel Features
 
-### 1. YouTube Panel
-- Supports **all standard YouTube formats**:
-  - `https://www.youtube.com/watch?v=VIDEO_ID`
-  - `https://youtu.be/VIDEO_ID`
-  - `https://www.youtube.com/shorts/VIDEO_ID`
-  - `https://www.youtube.com/live/VIDEO_ID`
-  - Timestamps (`?t=90` or `?t=1m30s`)
-- **One-click Paste Button** (`navigator.clipboard` integration).
-- Clean 16:9 responsive embed container (`youtube-nocookie.com`).
-- Recent video history chips.
+### 1. YouTube Video Panel (Admin Videos View-Only)
+- **View-Only Mode**: Users **only view videos added and approved by the Admin** in the Admin Panel.
+- **Admin Video Directory**: Clean selection buttons for admin-approved videos.
+- Automatically loads and plays the featured admin video directly on page load.
+- No public input box or paste controls; all link management is handled securely in the Admin Panel (`/admin`).
 
 ### 2. Website Viewer Panel (Admin Links View-Only)
 - **View-Only Mode**: Users can **only select and view links added by the Admin** (prevents browsing to random/unauthorized sites).

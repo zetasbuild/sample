@@ -50,7 +50,7 @@ export default function Navbar({
               </span>
             </div>
             <p className="text-[11px] text-slate-400 hidden sm:block">
-              Paste YouTube link &amp; preview websites side-by-side
+              Admin Curated Video &amp; Website Dual Viewer
             </p>
           </div>
         </div>
