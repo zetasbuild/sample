@@ -15,7 +15,7 @@ interface AppData {
 }
 
 const DEFAULT_VIDEO_URL = 'https://youtu.be/vUjkbW6qM6A';
-const DEFAULT_WEBSITE_URL = '';
+const DEFAULT_WEBSITE_URL = 'https://en.wikipedia.org';
 
 const DEFAULT_CREDENTIALS: AdminCredentials = {
   username: process.env.ADMIN_USERNAME || 'admin',
